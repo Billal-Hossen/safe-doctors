@@ -1,0 +1,58 @@
+import React, { useContext, useEffect, useState } from 'react';
+import AppointmentsByDate from '../AppointmentsByDate/AppointmentsByDate';
+import Sidebar from '../Sidebar/Sidebar';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import { UserContext } from '../../../App';
+
+const containerStyle={
+    backgroundColor: "#F4FBFD",
+    height:'100%'
+}
+
+const Dashboard = () => {
+    const [selectedDate,setSelectedDate]=useState(new Date())
+    const [appointments,setAppoints]=useState([])
+    const [loggedInUser, setLoggedInUser] =useContext(UserContext)
+    console.log(loggedInUser)
+   const handleDateChange=date=>{
+   
+ 
+       setSelectedDate(date)
+
+   }
+
+   useEffect(()=>{
+    fetch('http://localhost:5000/appointmentByDate',{
+        method:"POST",
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({date:selectedDate,email:loggedInUser.email})
+    })
+    .then(res=>res.json())
+    .then(data=>setAppoints(data))
+
+   },[selectedDate])
+   console.log(appointments)
+    return (
+        <section>
+            <div style={containerStyle} className="row container-fluid">
+                <div className="col-md-2">
+                    <Sidebar />
+                </div>
+                <div className="col-md-5">
+                    <Calendar
+                        onChange={handleDateChange}
+                        value={new Date()}
+                    />
+
+                </div>
+                <div className="col-md-5">
+                    <AppointmentsByDate appointments={appointments} />
+                </div>
+            </div>
+
+        </section>
+    );
+};
+
+export default Dashboard;
